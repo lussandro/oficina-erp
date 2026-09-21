@@ -167,12 +167,15 @@ npm run dev                      # http://localhost:3000
 ## 5. Comandos do dia a dia
 
 ```bash
-docker compose logs -f backend          # seguir log de um serviço
-docker compose restart backend          # reiniciar sem rebuild
+docker compose logs -f backend          # [Épico 2+] seguir log de um serviço
+docker compose restart backend          # [Épico 2+] reiniciar sem rebuild
 docker compose down                     # parar, PRESERVANDO os dados
 docker compose down -v                  # parar e APAGAR o volume do banco
 docker compose exec db psql -U oficina -d oficina_erp   # shell SQL
 ```
+
+Os dois primeiros exigem o serviço `backend` no ar (`docker compose --profile app up`),
+o que ainda não é possível neste commit. Os três últimos funcionam hoje.
 
 `down -v` apaga o volume `pgdata`. Não é o comando para "reiniciar a stack" — é
 o comando para recomeçar do zero de propósito.

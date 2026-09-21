@@ -163,13 +163,17 @@ docker compose exec -T db pg_restore -U oficina -d oficina_erp --clean < backup-
 ## 7. Operação
 
 ```bash
-docker compose logs -f backend            # log de um serviço
+docker compose logs -f backend            # [Épico 2+] log de um serviço
 docker compose ps                         # estado e healthcheck
-docker compose restart backend            # reinício sem rebuild
+docker compose restart backend            # [Épico 2+] reinício sem rebuild
 docker stats --no-stream                  # CPU/memória
 df -h                                     # disco (imagens antigas enchem o host)
 docker image prune -f                     # limpar imagens órfãs
 ```
+
+Os comandos marcados `[Épico 2+]` só respondem depois que o serviço `backend`
+existir de fato — hoje ele está sob `profiles: ["app"]` e requer
+`docker compose --profile app up`. `ps`, `stats`, `df` e `prune` funcionam agora.
 
 Sinais de saúde:
 

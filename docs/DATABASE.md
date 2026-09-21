@@ -223,12 +223,17 @@ Regras que o schema sozinho não garante e que vivem em service + teste:
 
 ```bash
 cd backend
+export DATABASE_URL="postgresql://oficina:<senha>@localhost:5432/oficina_erp?schema=public"
 
 npx prisma migrate dev --name <descricao>   # desenvolvimento: cria e aplica
 npx prisma migrate deploy                    # CI e produção: só aplica o que existe
 npx prisma migrate status                    # o que falta aplicar
 npx prisma studio                            # inspeção visual
 ```
+
+Sem `DATABASE_URL` exportado, qualquer um desses comandos falha com
+`P1012 — Environment variable not found: DATABASE_URL`. Dentro do container o
+valor vem do Compose; fora dele, exporte antes (mesmo padrão de `TESTING.md` §4).
 
 Regras:
 
