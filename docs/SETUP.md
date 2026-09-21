@@ -8,10 +8,11 @@ Para rodar os testes, ver [TESTING.md](./TESTING.md).
 **Última revisão:** 2026-09-21.
 
 > **Estado atual do repositório:** o Épico 0 entregou a fundação (documentação,
-> ADRs, `schema.prisma` e o esqueleto do Compose). `backend/` e `frontend/`
-> ainda não têm código — os passos marcados **[Épico 1+]** só funcionam depois
-> que o Épico 1 criar os Dockerfiles e os `package.json`. O que está marcado
-> **[hoje]** funciona neste commit.
+> ADRs, `schema.prisma`, esqueleto do Compose) e o Épico 1 entregou
+> `backend/Dockerfile` e `frontend/Dockerfile`. Falta o **código de aplicação**:
+> não há `package.json` em `backend/` nem em `frontend/`, então os Dockerfiles
+> ainda não constroem. Os passos marcados **[Épico 2+]** dependem desse código.
+> O que está marcado **[hoje]** funciona neste commit.
 
 ---
 
@@ -93,8 +94,9 @@ docker compose ps --format '{{.Service}} {{.State}}'
 ```
 
 Esperado: `db running`. Os serviços `backend` e `frontend` estão sob o profile
-`app` exatamente por ainda não terem código: sem o profile, `docker compose up`
-sobe só o banco em vez de falhar tentando construir imagem de diretório vazio.
+`app` porque, embora já tenham Dockerfile (Épico 1), ainda não têm
+`package.json`: sem o profile, `docker compose up` sobe só o banco em vez de
+falhar num build que hoje não tem como completar.
 
 Conferir que o banco aceita conexão:
 
@@ -103,14 +105,15 @@ docker compose exec db pg_isready -U oficina -d oficina_erp
 # -> /var/run/postgresql:5432 - accepting connections
 ```
 
-### 3.2 [Épico 1+] — sistema inteiro
+### 3.2 [Épico 2+] — sistema inteiro
 
 ```bash
 docker compose --profile app up --build
 ```
 
-Banco vazio → migrations → seed → login funciona. Sem passo manual: é critério
-de aceite do Épico 1, não aspiração.
+Banco vazio → migrations → seed → login funciona, sem passo manual. Hoje este
+comando **falha no build**, porque não existe `package.json` em `backend/` nem
+em `frontend/` — é o comportamento esperado até o código de aplicação chegar.
 
 | Serviço | URL |
 |---|---|
@@ -125,7 +128,7 @@ Login: `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD` do seu `.env`.
 
 ---
 
-## 4. [Épico 1+] Rodar fora do contêiner
+## 4. [Épico 2+] Rodar fora do contêiner
 
 Útil para ter hot reload e depurador. O banco continua no Docker.
 

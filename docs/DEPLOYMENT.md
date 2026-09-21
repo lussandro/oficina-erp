@@ -7,10 +7,11 @@ desenvolvedor, ver [SETUP.md](./SETUP.md).
 
 > **Estado atual:** o alvo de deploy é **Docker Compose em um host único** — uma
 > oficina tem dezenas de OS por dia, não milhares por segundo
-> ([ADR-0002](./adr/0002-stack.md)). A imagem de backend e frontend passa a
-> existir no **Épico 1**; a automação de deploy é entrega do **Épico 19 (DevOps
-> contínuo)**. Este documento fixa o procedimento e as invariantes que o Épico 19
-> automatiza. Trechos marcados **[Épico 1+]** dependem dos Dockerfiles.
+> ([ADR-0002](./adr/0002-stack.md)). O Épico 1 entregou os Dockerfiles, mas eles
+> só constroem quando o código de aplicação chegar (**Épico 2+**); a automação de
+> deploy é entrega do **Épico 19 (DevOps contínuo)**. Este documento fixa o
+> procedimento e as invariantes que o Épico 19 automatiza. Trechos marcados
+> **[Épico 2+]** dependem do código de aplicação.
 
 ---
 
@@ -80,7 +81,7 @@ CI, cada valor vem de GitHub Secrets, referenciado como `${{ secrets.NOME }}`.
 
 ---
 
-## 4. [Épico 1+] Primeiro deploy
+## 4. [Épico 2+] Primeiro deploy
 
 ```bash
 # no host, como o usuário de deploy
@@ -110,7 +111,7 @@ funciona**, sem passo manual ([ADR-0006](./adr/0006-bootstrap-do-admin.md)).
 
 ---
 
-## 5. [Épico 1+] Atualizar uma versão em produção
+## 5. [Épico 2+] Atualizar uma versão em produção
 
 ```bash
 cd oficina-erp

@@ -4,11 +4,12 @@ O que se testa, com o quê, e o que conta como evidência.
 
 **Última revisão:** 2026-09-21.
 
-> **Estado atual:** o Épico 0 entregou a fundação. As suítes de backend e
-> frontend passam a existir no **Épico 1**, e o roteiro E2E completo é o
-> **Épico 22**. Os jobs `backend` e `frontend` do CI já estão escritos e ligam
-> sozinhos quando o `package.json` correspondente aparecer. Trechos marcados
-> **[Épico 1+]** dependem disso.
+> **Estado atual:** os Épicos 0 e 1 entregaram fundação e Dockerfiles. As
+> suítes de backend e frontend passam a existir a partir do **Épico 2**, junto
+> com o código de aplicação; o roteiro E2E completo é o **Épico 22**. Os jobs
+> `backend` e `frontend` do CI já estão escritos e ligam sozinhos quando o
+> `package.json` correspondente aparecer. Trechos marcados **[Épico 2+]**
+> dependem disso.
 
 ---
 
@@ -81,7 +82,7 @@ bloqueia merge.
 
 ---
 
-## 4. [Épico 1+] Rodar
+## 4. [Épico 2+] Rodar
 
 **Backend** (`cd backend`):
 

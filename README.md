@@ -44,19 +44,19 @@ cp .env.example .env
 # SEED_ADMIN_EMAIL, SEED_ADMIN_PASSWORD.
 # Sem elas o Compose recusa subir — não existe senha padrão (ADR-0006).
 
-# Hoje (Épico 0): apenas o banco.
+# Hoje: apenas o banco.
 docker compose up -d db
 
-# A partir do Épico 1: o sistema inteiro.
+# A partir do Épico 2 (quando houver código de aplicação): o sistema inteiro.
 docker compose --profile app up --build
 ```
 
 | Serviço | URL | Disponível |
 |---|---|---|
 | Postgres | localhost:5432 | agora |
-| API | http://localhost:3001/api/v1 | Épico 1+ |
-| Swagger | http://localhost:3001/api/docs | Épico 1+ |
-| Frontend | http://localhost:3000 | Épico 1+ |
+| API | http://localhost:3001/api/v1 | Épico 2+ |
+| Swagger | http://localhost:3001/api/docs | Épico 2+ |
+| Frontend | http://localhost:3000 | Épico 2+ |
 
 Quando backend e frontend existirem, a primeira subida com banco vazio roda as
 migrations e o seed cria o administrador com `SEED_ADMIN_EMAIL` /
