@@ -7,6 +7,7 @@ import { PermissionsGuard } from "./common/guards/permissions.guard";
 import { HttpExceptionFilter } from "./common/filters/http-exception.filter";
 import { AuthModule } from "./modules/auth/auth.module";
 import { UsersModule } from "./modules/users/users.module";
+import { CustomersModule } from "./modules/customers/customers.module";
 import { HealthController } from "./health/health.controller";
 
 @Module({
@@ -15,6 +16,7 @@ import { HealthController } from "./health/health.controller";
     PrismaModule,
     AuthModule,
     UsersModule,
+    CustomersModule,
   ],
   controllers: [HealthController],
   providers: [

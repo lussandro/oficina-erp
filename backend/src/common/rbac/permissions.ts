@@ -8,9 +8,20 @@ export const PERMISSIONS = {
   USER_CREATE: "user:create",
   USER_UPDATE: "user:update",
   USER_MANAGE: "user:manage",
+  CUSTOMER_READ: "customer:read",
+  CUSTOMER_CREATE: "customer:create",
+  CUSTOMER_UPDATE: "customer:update",
+  CUSTOMER_MANAGE: "customer:manage",
 } as const;
 
 export type Permission = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
+
+const CUSTOMER_FULL = [
+  PERMISSIONS.CUSTOMER_READ,
+  PERMISSIONS.CUSTOMER_CREATE,
+  PERMISSIONS.CUSTOMER_UPDATE,
+  PERMISSIONS.CUSTOMER_MANAGE,
+];
 
 export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
   [Role.ADMIN]: [
@@ -18,9 +29,12 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     PERMISSIONS.USER_CREATE,
     PERMISSIONS.USER_UPDATE,
     PERMISSIONS.USER_MANAGE,
+    ...CUSTOMER_FULL,
   ],
-  [Role.GERENTE]: [PERMISSIONS.USER_READ],
-  [Role.ATENDENTE]: [],
+  // ARCHITECTURE.md §5: GERENTE tem operação completa (exceto gestão de usuários).
+  [Role.GERENTE]: [PERMISSIONS.USER_READ, ...CUSTOMER_FULL],
+  // ARCHITECTURE.md §5: clientes são escopo do ATENDENTE.
+  [Role.ATENDENTE]: [...CUSTOMER_FULL],
   [Role.MECANICO]: [],
 };
 
