@@ -1,6 +1,9 @@
 # Sobe o sistema inteiro do zero: banco vazio -> docker compose up -> sistema usável.
-# Os serviços backend/frontend passam a construir quando os Épicos 1+ criarem os
-# Dockerfiles; hoje o `db` já sobe e é o que a fundação precisa.
+# Dockerfiles de backend/frontend (Épico 1) já existem, mas os diretórios ainda
+# não têm código de aplicação (Épico 2+). Por isso os dois seguem sob o profile
+# `app`: `docker compose up -d db` sobe só o banco; `--profile app up --build`
+# tenta o build completo e falhará até o código chegar — comportamento esperado,
+# não bug desta issue.
 
 services:
   db:
@@ -68,6 +71,12 @@ services:
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:3001/api/v1}
     ports:
       - "${FRONTEND_PORT:-3000}:3000"
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"fetch('http://localhost:3000/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
     profiles: ["app"]
 
 volumes:

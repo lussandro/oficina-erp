@@ -20,15 +20,17 @@ Racional das escolhas: [`docs/adr/`](./docs/adr/).
 
 ## Estado atual
 
-Este repositório está no fim do **Épico 0 (Discovery & Arquitetura)**. O que
-existe hoje é a fundação: documentação, decisões de arquitetura, modelo de dados
-(`schema.prisma` validado) e o esqueleto do Compose.
+Este repositório está no fim do **Épico 1 (Infraestrutura inicial)**. Além da
+fundação do Épico 0 (documentação, ADRs, modelo de dados), agora existem
+`backend/Dockerfile` e `frontend/Dockerfile` (build multi-stage Node 20) e
+healthcheck nos três serviços do Compose.
 
-**O backend e o frontend ainda não têm código.** Os serviços `backend` e
-`frontend` do `docker-compose.yml` estão sob o profile `app` justamente por isso:
-`docker compose up` sem o profile sobe apenas o banco, em vez de falhar tentando
-construir imagem de diretório vazio. O Épico 1 (Infraestrutura, SRE) cria os
-Dockerfiles e remove o profile.
+**O backend e o frontend ainda não têm código de aplicação** — isso é escopo
+dos próximos épicos (Épico 2+). Por isso os serviços `backend` e `frontend` do
+`docker-compose.yml` seguem sob o profile `app`: `docker compose up -d db` sobe
+só o banco; `docker compose --profile app up --build` tenta o build completo e
+falha até o código chegar. Remover o profile é decisão dos épicos que
+entregarem esse código, não desta issue.
 
 ## Como subir
 
