@@ -6,6 +6,7 @@ import {
   HttpStatus,
 } from "@nestjs/common";
 import { Response } from "express";
+import { STATUS_CODES } from "http";
 
 // Formato de erro único do contrato (docs/API_CONTRACT.md): statusCode, error, message, details?.
 @Catch()
@@ -21,7 +22,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const body = isHttp ? exception.getResponse() : null;
 
     let message = "Erro interno";
-    let error = "Internal Server Error";
+    // Exceções construídas com payload de objeto (ex.: `new UnprocessableEntityException({ message, details })`)
+    // substituem o body inteiro — Nest não preenche `error` sozinho nesse caso. Cai pro reason phrase do status.
+    let error = STATUS_CODES[statusCode] ?? "Internal Server Error";
     let details: unknown;
 
     if (typeof body === "string") {
