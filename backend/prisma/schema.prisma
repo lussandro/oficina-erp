@@ -91,9 +91,10 @@ model User {
   active       Boolean   @default(true)
   lastLoginAt  DateTime?
 
-  mechanic      Mechanic?
-  refreshTokens RefreshToken[]
-  auditLogs     AuditLog[]
+  mechanic            Mechanic?
+  refreshTokens       RefreshToken[]
+  passwordResetTokens PasswordResetToken[]
+  auditLogs           AuditLog[]
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -115,6 +116,20 @@ model RefreshToken {
 
   @@index([userId])
   @@map("refresh_tokens")
+}
+
+/// Token de recuperação de senha (ADR-0003). Guardamos o hash, de uso único, curta duração.
+model PasswordResetToken {
+  id        String    @id @default(uuid())
+  tokenHash String    @unique
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@map("password_reset_tokens")
 }
 
 /// Auditoria de dados, com valor antes/depois. Nunca é apagada.
