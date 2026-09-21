@@ -42,6 +42,19 @@ jobs:
           SEED_ADMIN_EMAIL: ci@example.com
           SEED_ADMIN_PASSWORD: ci
 
+      - name: Documentacao presente
+        run: |
+          faltam=""
+          for f in README.md docs/ARCHITECTURE.md docs/DATABASE.md docs/API.md \
+                   docs/SETUP.md docs/DEPLOYMENT.md docs/TESTING.md docs/SECURITY.md; do
+            test -f "$f" || faltam="$faltam $f"
+          done
+          if [ -n "$faltam" ]; then
+            echo "ERRO: documento obrigatorio ausente:$faltam"
+            exit 1
+          fi
+          echo "OK: toda a documentacao obrigatoria existe."
+
       - name: Nenhum .env commitado
         run: |
           if git ls-files --error-unmatch .env >/dev/null 2>&1; then

@@ -8,6 +8,10 @@ Mudança que quebra contrato se anuncia no PR, com Backend e Frontend marcados.
 
 Base: `/api/v1` · Autenticação: `Authorization: Bearer <access_token>`
 
+**Última revisão:** 2026-09-21. Este arquivo se chamava `API_CONTRACT.md` até o
+Épico 20; o conteúdo é o mesmo, o nome passou a seguir o conjunto
+`SETUP` / `DATABASE` / `API` / `TESTING` / `DEPLOYMENT` / `SECURITY`.
+
 ---
 
 ## 1. Padrões
