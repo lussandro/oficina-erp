@@ -1,6 +1,7 @@
 # Backend — NestJS
 
-Vazio até o Épico 1 (Infraestrutura) e o Épico 2 (Auth).
+Sem código de aplicação até o Épico 2 (Auth). `Dockerfile` (Épico 1) já existe
+e builda assim que `package.json` chegar.
 
 O que já vale como contrato: [`prisma/schema.prisma`](./prisma/schema.prisma),
 validado com `prisma validate`. Estrutura de camadas e regras em
