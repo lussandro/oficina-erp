@@ -167,13 +167,20 @@ Trate por `statusCode`, não por `error`, nesse caminho específico.
 | `/customers` | CRUD + `GET /:id/vehicles` + `GET /:id/service-orders` | 3 |
 | `/vehicles` | CRUD + `GET /:id/history` | 4, 12 |
 | `/services` · `/service-categories` | CRUD (permissões `service:read`\|`create`\|`update`\|`manage`; `DELETE /service-categories/:id` é hard delete — serviços vinculados ficam sem categoria via `onDelete: SetNull`, `DELETE /services/:id` é soft delete) | 5 |
-| `/products` · `/product-categories` | CRUD | 6 |
+| `/products` · `/product-categories` | CRUD (permissões `product:*` e `productcategory:*`) | 6 |
 | `/suppliers` | CRUD | 7 |
 | `/mechanics` | CRUD | 9 |
 
 `GET /customers?q=` busca por nome, documento e telefone.
 `GET /vehicles?q=` busca por placa, marca e modelo.
 `GET /services?q=&categoryId=&active=` busca por nome/descrição e filtra por categoria e status.
+`GET /products?q=` busca por SKU, nome, código de barras e fabricante; aceita
+também `categoryId`, `supplierId` e `active`. Campos do produto: `sku`, `barcode`,
+`name`, `description`, `manufacturer`, `costPrice`, `salePrice`, `unit`, `stockQty`,
+`minStockQty`, `location` (endereço físico na oficina), `active`, `categoryId`,
+`supplierId`. `product-categories` só tem `name` — sem soft delete (exclusão é
+definitiva; produtos ligados ficam sem categoria). Toda a equipe lê o catálogo;
+cadastrar/editar/excluir exige ADMIN ou GERENTE (custo é dado sensível).
 
 #### Usuários — Épico 2
 

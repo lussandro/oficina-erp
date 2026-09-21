@@ -9,6 +9,8 @@ import { AuthModule } from "./modules/auth/auth.module";
 import { UsersModule } from "./modules/users/users.module";
 import { CustomersModule } from "./modules/customers/customers.module";
 import { ServicesModule } from "./modules/services/services.module";
+import { ProductsModule } from "./modules/products/products.module";
+import { ProductCategoriesModule } from "./modules/product-categories/product-categories.module";
 import { HealthController } from "./health/health.controller";
 
 @Module({
@@ -19,6 +21,8 @@ import { HealthController } from "./health/health.controller";
     UsersModule,
     CustomersModule,
     ServicesModule,
+    ProductsModule,
+    ProductCategoriesModule,
   ],
   controllers: [HealthController],
   providers: [
