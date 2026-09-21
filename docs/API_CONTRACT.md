@@ -166,13 +166,14 @@ Trate por `statusCode`, não por `error`, nesse caminho específico.
 | `/users` | CRUD (permissões `user:read`\|`create`\|`update`\|`manage`; sem rota própria de ativar/inativar — usa `PATCH /users/:id` com `active`) | 2 |
 | `/customers` | CRUD + `GET /:id/vehicles` + `GET /:id/service-orders` | 3 |
 | `/vehicles` | CRUD + `GET /:id/history` | 4, 12 |
-| `/services` · `/service-categories` | CRUD | 5 |
+| `/services` · `/service-categories` | CRUD (permissões `service:read`\|`create`\|`update`\|`manage`; `DELETE /service-categories/:id` é hard delete — serviços vinculados ficam sem categoria via `onDelete: SetNull`, `DELETE /services/:id` é soft delete) | 5 |
 | `/products` · `/product-categories` | CRUD | 6 |
 | `/suppliers` | CRUD | 7 |
 | `/mechanics` | CRUD | 9 |
 
 `GET /customers?q=` busca por nome, documento e telefone.
 `GET /vehicles?q=` busca por placa, marca e modelo.
+`GET /services?q=&categoryId=&active=` busca por nome/descrição e filtra por categoria e status.
 
 #### Usuários — Épico 2
 
