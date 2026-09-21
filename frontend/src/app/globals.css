@@ -1,0 +1,153 @@
+@import 'tailwindcss';
+
+/* O design system nasce aqui. Nenhuma cor, sombra ou raio se define fora deste
+   arquivo — tela que precisa de cor nova adiciona um token, não um literal.
+   Catálogo completo em docs/DESIGN_SYSTEM.md; regras em docs/ARCHITECTURE.md §7.
+
+   Estrutura: os valores vivem como custom properties cruas (`--canvas`,
+   `--fg`…) em `:root` e `.dark`, e o `@theme inline` só dá nome Tailwind a
+   elas. `inline` é obrigatório aqui: sem ele o utilitário congelaria o valor
+   do light e a troca de tema pararia de funcionar. */
+
+/* A alternância de tema é a classe `.dark` no <html>. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* -- Cor ------------------------------------------------------------------
+   Dois temas, um só conjunto de nomes. Toda cor consumida por tela é uma
+   destas variáveis; por isso a guarda de CI prova zero literal.
+
+   canvas         fundo da página        surface       fundo de card/painel
+   surface-sunken poço (tabela, código)  line          borda/divisória
+   fg             texto principal        muted         texto secundário
+   subtle         texto terciário        accent        ação primária e foco
+   danger         erro/destrutivo        success       confirmação
+   warning        atenção */
+:root {
+  --canvas: oklch(0.97 0.005 250);
+  --surface: oklch(1 0 0);
+  --surface-sunken: oklch(0.95 0.006 250);
+  --line: oklch(0.9 0.008 250);
+  --line-strong: oklch(0.82 0.012 250);
+
+  --fg: oklch(0.24 0.02 255);
+  --muted: oklch(0.5 0.018 255);
+  --subtle: oklch(0.63 0.015 255);
+
+  --accent: oklch(0.5 0.13 245);
+  --accent-hover: oklch(0.44 0.13 245);
+  --accent-soft: oklch(0.94 0.03 245);
+  --on-accent: oklch(0.99 0 0);
+
+  --danger: oklch(0.52 0.18 25);
+  --danger-soft: oklch(0.95 0.04 25);
+  --success: oklch(0.5 0.12 155);
+  --success-soft: oklch(0.95 0.04 155);
+  --warning: oklch(0.62 0.13 75);
+  --warning-soft: oklch(0.96 0.05 75);
+
+  --shadow-color: oklch(0.24 0.02 255 / 0.12);
+  --ring: oklch(0.55 0.16 245);
+}
+
+.dark {
+  --canvas: oklch(0.19 0.015 255);
+  --surface: oklch(0.23 0.018 255);
+  --surface-sunken: oklch(0.17 0.015 255);
+  --line: oklch(0.3 0.02 255);
+  --line-strong: oklch(0.38 0.022 255);
+
+  --fg: oklch(0.95 0.008 250);
+  --muted: oklch(0.75 0.012 250);
+  --subtle: oklch(0.62 0.015 250);
+
+  --accent: oklch(0.68 0.13 245);
+  --accent-hover: oklch(0.75 0.13 245);
+  --accent-soft: oklch(0.3 0.05 245);
+  --on-accent: oklch(0.17 0.015 255);
+
+  --danger: oklch(0.7 0.16 25);
+  --danger-soft: oklch(0.3 0.06 25);
+  --success: oklch(0.72 0.13 155);
+  --success-soft: oklch(0.3 0.05 155);
+  --warning: oklch(0.78 0.13 75);
+  --warning-soft: oklch(0.32 0.06 75);
+
+  --shadow-color: oklch(0 0 0 / 0.5);
+  --ring: oklch(0.72 0.14 245);
+}
+
+@theme inline {
+  /* Tipografia: pilha de sistema — carrega sem rede, funciona no balcão com
+     3G ruim. A escala é a do Tailwind (text-xs…text-4xl). */
+  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, monospace;
+
+  /* Raio: sm = badge/chip, md = botão/input, lg = card/modal,
+     pill = filtro/avatar/contador. */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-pill: 9999px;
+
+  /* Profundidade: se toda superfície é borda + fundo, nada tem peso.
+     card = o que repousa na página, float = o que flutua (modal, dropdown). */
+  --shadow-card: 0 1px 2px 0 var(--shadow-color);
+  --shadow-float: 0 8px 24px -4px var(--shadow-color);
+
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-sunken: var(--surface-sunken);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-subtle: var(--subtle);
+
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-soft: var(--accent-soft);
+  --color-on-accent: var(--on-accent);
+
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+
+  --color-ring: var(--ring);
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Foco visível em tudo que recebe teclado. Nunca `outline: none` sem isto. */
+  :focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
+  }
+}
+
+@layer utilities {
+  /* Área de toque mínima de 44px no celular, para alvos pequenos (botão de
+     ícone, ação de linha de tabela). */
+  .touch-target {
+    min-height: 2.75rem;
+    min-width: 2.75rem;
+  }
+}
