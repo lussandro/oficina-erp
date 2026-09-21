@@ -7,6 +7,7 @@ import { PermissionsGuard } from "./common/guards/permissions.guard";
 import { HttpExceptionFilter } from "./common/filters/http-exception.filter";
 import { AuthModule } from "./modules/auth/auth.module";
 import { UsersModule } from "./modules/users/users.module";
+import { HealthController } from "./health/health.controller";
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { UsersModule } from "./modules/users/users.module";
     AuthModule,
     UsersModule,
   ],
+  controllers: [HealthController],
   providers: [
     // Toda rota exige token válido por padrão; use @Public() para abrir exceção (ADR-0003).
     { provide: APP_GUARD, useClass: JwtAuthGuard },

@@ -20,7 +20,7 @@ async function bootstrap() {
 
   const app = await NestFactory.create(AppModule);
   const prefix = process.env.API_PREFIX ?? "api/v1";
-  app.setGlobalPrefix(prefix);
+  app.setGlobalPrefix(prefix, { exclude: ["health"] });
   app.enableCors({
     origin: process.env.CORS_ORIGIN ?? "http://localhost:3000",
   });
