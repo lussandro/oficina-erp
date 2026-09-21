@@ -105,7 +105,7 @@ Schema Prisma canônico: [`backend/prisma/schema.prisma`](../backend/prisma/sche
 - **PK `uuid`**, não `serial`. ID sequencial de cliente vaza volume de negócio e
   permite enumeração via API.
 - **Número de OS separado da PK**: `ServiceOrder.number` (int, autoincremento via
-  sequence) é o que a esteticista lê e fala ao telefone; `id` é interno.
+  sequence) é o que a oficina lê e fala ao telefone; `id` é interno.
 - **Dinheiro em `Decimal(12,2)`**, nunca `Float`. Ver [ADR-0004](./adr/0004-dinheiro-decimal.md).
 - **Preços congelados no item**: `ServiceOrderItem.unitPrice` e
   `ServiceOrderService.unitPrice` copiam o preço vigente na inclusão. Reajustar o
@@ -194,7 +194,7 @@ Ver [ADR-0006](./adr/0006-bootstrap-do-admin.md).
 - O **OpenAPI é o contrato entre Backend e Frontend**. Mudança que quebra contrato
   exige aviso no PR e ajuste combinado — Backend não altera resposta sem o Frontend saber.
 - Esqueleto inicial (a ser preenchido pelos épicos de cada módulo):
-  [`docs/API_CONTRACT.md`](./API_CONTRACT.md).
+  [`docs/API.md`](./API.md).
 
 Padrões:
 

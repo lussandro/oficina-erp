@@ -23,7 +23,9 @@ Racional das escolhas: [`docs/adr/`](./docs/adr/).
 Este repositório está no fim do **Épico 1 (Infraestrutura inicial)**. Além da
 fundação do Épico 0 (documentação, ADRs, modelo de dados), agora existem
 `backend/Dockerfile` e `frontend/Dockerfile` (build multi-stage Node 20) e
-healthcheck nos três serviços do Compose.
+healthcheck nos três serviços do Compose. A documentação de referência está
+completa (Épico 20): cada documento marca com **[Épico N+]** o que ainda depende
+de código que não existe neste commit.
 
 **O backend e o frontend ainda não têm código de aplicação** — isso é escopo
 dos próximos épicos (Épico 2+). Por isso os serviços `backend` e `frontend` do
@@ -64,9 +66,14 @@ migrations e o seed cria o administrador com `SEED_ADMIN_EMAIL` /
 
 | Documento | Conteúdo |
 |---|---|
+| [docs/SETUP.md](./docs/SETUP.md) | Do clone ao sistema rodando na sua máquina |
 | [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) | Arquitetura, camadas, modelo de dados, RBAC, padrões de API |
+| [docs/DATABASE.md](./docs/DATABASE.md) | Tabelas, invariantes, migrations e backup |
+| [docs/API.md](./docs/API.md) | Contrato de API entre backend e frontend |
+| [docs/TESTING.md](./docs/TESTING.md) | O que se testa, com o quê, e o que conta como evidência |
+| [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md) | Deploy, segredos, backup e operação |
+| [docs/SECURITY.md](./docs/SECURITY.md) | Segredos, autenticação, RBAC, dados do cliente |
 | [docs/REFERENCE_ANALYSIS.md](./docs/REFERENCE_ANALYSIS.md) | Análise do sistema de referência e suas lacunas |
-| [docs/API_CONTRACT.md](./docs/API_CONTRACT.md) | Contrato de API entre backend e frontend |
 | [docs/adr/](./docs/adr/) | Decisões de arquitetura e seus trade-offs |
 
 ## Estrutura
