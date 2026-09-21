@@ -11,6 +11,7 @@ import { CustomersModule } from "./modules/customers/customers.module";
 import { ServicesModule } from "./modules/services/services.module";
 import { ProductsModule } from "./modules/products/products.module";
 import { ProductCategoriesModule } from "./modules/product-categories/product-categories.module";
+import { AuditModule } from "./modules/audit/audit.module";
 import { HealthController } from "./health/health.controller";
 
 @Module({
@@ -23,6 +24,7 @@ import { HealthController } from "./health/health.controller";
     ServicesModule,
     ProductsModule,
     ProductCategoriesModule,
+    AuditModule,
   ],
   controllers: [HealthController],
   providers: [

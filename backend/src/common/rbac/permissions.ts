@@ -26,6 +26,12 @@ export const PERMISSIONS = {
   PRODUCT_CATEGORY_CREATE: "productcategory:create",
   PRODUCT_CATEGORY_UPDATE: "productcategory:update",
   PRODUCT_CATEGORY_MANAGE: "productcategory:manage",
+  // Auditoria (/audit-logs) — Épico 16.
+  AUDIT_READ: "audit:read",
+  EMPLOYEE_READ: "employee:read",
+  EMPLOYEE_CREATE: "employee:create",
+  EMPLOYEE_UPDATE: "employee:update",
+  EMPLOYEE_MANAGE: "employee:manage",
 } as const;
 
 export type Permission = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
@@ -66,6 +72,12 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     ...CUSTOMER_FULL,
     ...SERVICE_FULL,
     ...PRODUCT_FULL,
+    // docs/API_CONTRACT.md §Auditoria: audit:read é exclusivo do ADMIN.
+    PERMISSIONS.AUDIT_READ,
+    PERMISSIONS.EMPLOYEE_READ,
+    PERMISSIONS.EMPLOYEE_CREATE,
+    PERMISSIONS.EMPLOYEE_UPDATE,
+    PERMISSIONS.EMPLOYEE_MANAGE,
   ],
   // ARCHITECTURE.md §5: GERENTE tem operação completa (exceto gestão de usuários).
   [Role.GERENTE]: [
@@ -73,6 +85,9 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     ...CUSTOMER_FULL,
     ...SERVICE_FULL,
     ...PRODUCT_FULL,
+    PERMISSIONS.EMPLOYEE_READ,
+    PERMISSIONS.EMPLOYEE_CREATE,
+    PERMISSIONS.EMPLOYEE_UPDATE,
   ],
   // ARCHITECTURE.md §5: clientes são escopo do ATENDENTE.
   [Role.ATENDENTE]: [
@@ -82,6 +97,7 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     // Consulta produtos/peças para orçamento/OS.
     PERMISSIONS.PRODUCT_READ,
     PERMISSIONS.PRODUCT_CATEGORY_READ,
+    PERMISSIONS.EMPLOYEE_READ,
   ],
   [Role.MECANICO]: [
     PERMISSIONS.SERVICE_READ,
