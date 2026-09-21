@@ -26,6 +26,11 @@ export const PERMISSIONS = {
   PRODUCT_CATEGORY_CREATE: "productcategory:create",
   PRODUCT_CATEGORY_UPDATE: "productcategory:update",
   PRODUCT_CATEGORY_MANAGE: "productcategory:manage",
+  // Fornecedores (/suppliers) — Épico 7.
+  SUPPLIER_READ: "supplier:read",
+  SUPPLIER_CREATE: "supplier:create",
+  SUPPLIER_UPDATE: "supplier:update",
+  SUPPLIER_MANAGE: "supplier:manage",
   // Auditoria (/audit-logs) — Épico 16.
   AUDIT_READ: "audit:read",
   EMPLOYEE_READ: "employee:read",
@@ -61,8 +66,17 @@ const PRODUCT_FULL = [
   PERMISSIONS.PRODUCT_CATEGORY_MANAGE,
 ];
 
+const SUPPLIER_FULL = [
+  PERMISSIONS.SUPPLIER_READ,
+  PERMISSIONS.SUPPLIER_CREATE,
+  PERMISSIONS.SUPPLIER_UPDATE,
+  PERMISSIONS.SUPPLIER_MANAGE,
+];
+
 // Peças/produtos: toda a equipe consulta (orçamento, OS, balcão); só
 // ADMIN/GERENTE cadastra e ajusta o catálogo (custo é dado sensível).
+// Fornecedores seguem a mesma regra: o fornecedor aparece na tela do produto
+// (consulta por ATENDENTE/MECANICO), mas cadastrar/editar é de ADMIN/GERENTE.
 export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
   [Role.ADMIN]: [
     PERMISSIONS.USER_READ,
@@ -72,6 +86,7 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     ...CUSTOMER_FULL,
     ...SERVICE_FULL,
     ...PRODUCT_FULL,
+    ...SUPPLIER_FULL,
     // docs/API_CONTRACT.md §Auditoria: audit:read é exclusivo do ADMIN.
     PERMISSIONS.AUDIT_READ,
     PERMISSIONS.EMPLOYEE_READ,
@@ -85,6 +100,7 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     ...CUSTOMER_FULL,
     ...SERVICE_FULL,
     ...PRODUCT_FULL,
+    ...SUPPLIER_FULL,
     PERMISSIONS.EMPLOYEE_READ,
     PERMISSIONS.EMPLOYEE_CREATE,
     PERMISSIONS.EMPLOYEE_UPDATE,
@@ -97,12 +113,14 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     // Consulta produtos/peças para orçamento/OS.
     PERMISSIONS.PRODUCT_READ,
     PERMISSIONS.PRODUCT_CATEGORY_READ,
+    PERMISSIONS.SUPPLIER_READ,
     PERMISSIONS.EMPLOYEE_READ,
   ],
   [Role.MECANICO]: [
     PERMISSIONS.SERVICE_READ,
     PERMISSIONS.PRODUCT_READ,
     PERMISSIONS.PRODUCT_CATEGORY_READ,
+    PERMISSIONS.SUPPLIER_READ,
   ],
 };
 

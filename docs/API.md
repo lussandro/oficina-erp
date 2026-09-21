@@ -172,7 +172,7 @@ Trate por `statusCode`, não por `error`, nesse caminho específico.
 | `/vehicles` | CRUD + `GET /:id/history` | 4, 12 |
 | `/services` · `/service-categories` | CRUD (permissões `service:read`\|`create`\|`update`\|`manage`; `DELETE /service-categories/:id` é hard delete — serviços vinculados ficam sem categoria via `onDelete: SetNull`, `DELETE /services/:id` é soft delete) | 5 |
 | `/products` · `/product-categories` | CRUD (permissões `product:*` e `productcategory:*`) | 6 |
-| `/suppliers` | CRUD | 7 |
+| `/suppliers` | CRUD + `GET /:id/products` (permissões `supplier:read`\|`create`\|`update`\|`manage`) | 7 |
 | `/mechanics` | CRUD | 9 |
 
 `GET /customers?q=` busca por nome, documento e telefone.
@@ -185,6 +185,42 @@ também `categoryId`, `supplierId` e `active`. Campos do produto: `sku`, `barcod
 `supplierId`. `product-categories` só tem `name` — sem soft delete (exclusão é
 definitiva; produtos ligados ficam sem categoria). Toda a equipe lê o catálogo;
 cadastrar/editar/excluir exige ADMIN ou GERENTE (custo é dado sensível).
+
+#### Fornecedores — Épico 7
+
+`POST /suppliers` — `{ document, name, tradeName?, email?, phone?, website?,
+zipCode?, street?, number?, complement?, district?, city?, state? }`. `document` é
+**CNPJ** (fornecedor é sempre PJ — CPF aqui é `400 "CNPJ inválido"`), aceito com ou
+sem máscara e normalizado para 14 dígitos; `state` normalizado para maiúsculas e
+`zipCode` para 8 dígitos. O checksum é validado de verdade (`isValidCNPJ`), não só o
+formato.
+
+`GET /suppliers?page=&pageSize=&q=&active=` — `q` busca em `name`, `tradeName` e
+`document` (comparando só os dígitos, então `?q=11.222.333/0001-81` acha o CNPJ
+`11222333000181`). `active` usa o mesmo `@Transform` explícito de `ListUsersQuery`
+(regressão BAC-68) — `?active=false` devolve os inativos.
+
+`GET /suppliers/:id`, `PATCH /suppliers/:id`, `DELETE /suppliers/:id` com id
+inexistente → `404 Fornecedor não encontrado`. `DELETE` → `204`, soft delete
+(`deletedAt` + `active: false`); a linha continua no banco e os produtos vinculados
+**mantêm** o `supplierId` — o vínculo não é apagado, só o fornecedor sai das
+listagens.
+
+**Vínculo com produtos.** Quem guarda o vínculo é o `Product` (`supplierId`, Épico 6),
+então a escrita é `PATCH /products/:id` com `supplierId` e a leitura tem os dois
+sentidos: `GET /suppliers/:id/products` (produtos do fornecedor, ordem alfabética) e
+`GET /products?supplierId=` (filtro do catálogo).
+
+**RBAC.** Toda a equipe lê (o fornecedor aparece na tela do produto); cadastrar,
+editar e excluir exige ADMIN ou GERENTE — mesma regra de produtos, porque o custo de
+compra é dado sensível.
+
+Execução real contra Postgres, CNPJ duplicado (`422`) e CNPJ com dígito errado (`400`):
+
+```json
+{ "statusCode": 422, "error": "Unprocessable Entity", "message": "CNPJ já cadastrado para outro fornecedor", "details": { "field": "document" } }
+{ "statusCode": 400, "error": "Bad Request", "message": "CNPJ inválido" }
+```
 
 #### Usuários — Épico 2
 
