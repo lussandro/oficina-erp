@@ -86,16 +86,27 @@ Cada épico detalha os seus DTOs; aqui ficam as rotas acordadas e a permissão e
 | `POST /auth/refresh` | pública (refresh token válido) |
 | `POST /auth/logout` | autenticado |
 | `GET /auth/me` | autenticado |
+| `PATCH /auth/me` | autenticado (name, phone) |
+| `POST /auth/change-password` | autenticado |
 | `POST /auth/forgot-password` | pública |
 | `POST /auth/reset-password` | pública (token válido) |
 
 `POST /auth/login` → `{ accessToken, refreshToken, user: { id, name, email, role, permissions[] } }`
 
+Access token: JWT, 15 min. Refresh token: opaco, 7 dias, rotativo (cada uso invalida o
+anterior e emite um novo), hash SHA-256 em repouso. RBAC por permissão nomeada
+`<recurso>:<ação>`, mapa perfil→permissões versionado em código
+(`backend/src/common/rbac/permissions.ts`), não em tabela — ver ADR-0003.
+
+`POST /auth/forgot-password` gera e persiste o token de reset mas **não envia e-mail**:
+nenhum provedor/secret de envio foi decidido em ADR até o momento. Fora de escopo do
+Épico 2; retomar quando houver ADR + secret configurado.
+
 ### Cadastros
 
 | Recurso | Rotas | Épico |
 |---|---|---|
-| `/users` | CRUD | 2 |
+| `/users` | CRUD (permissões `user:read`\|`create`\|`update`\|`manage`; sem rota própria de ativar/inativar — usa `PATCH /users/:id` com `active`) | 2 |
 | `/customers` | CRUD + `GET /:id/vehicles` + `GET /:id/service-orders` | 3 |
 | `/vehicles` | CRUD + `GET /:id/history` | 4, 12 |
 | `/services` · `/service-categories` | CRUD | 5 |
