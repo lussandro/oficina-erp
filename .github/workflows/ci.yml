@@ -1,0 +1,127 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  # Guardas que valem desde o Épico 0, quando ainda não há código de aplicação.
+  foundation:
+    name: Fundação (schema, compose, segredos)
+    runs-on: ubuntu-latest
+    outputs:
+      has_backend: ${{ steps.detect.outputs.has_backend }}
+      has_frontend: ${{ steps.detect.outputs.has_frontend }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # hashFiles() no `if` de job roda antes do checkout e devolveria vazio
+      # para sempre. A detecção precisa acontecer depois do checkout.
+      - name: Detectar aplicações presentes
+        id: detect
+        run: |
+          test -f backend/package.json  && echo "has_backend=true"  >> "$GITHUB_OUTPUT" || echo "has_backend=false"  >> "$GITHUB_OUTPUT"
+          test -f frontend/package.json && echo "has_frontend=true" >> "$GITHUB_OUTPUT" || echo "has_frontend=false" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Validar schema Prisma
+        run: npx --yes prisma@5 validate --schema backend/prisma/schema.prisma
+        env:
+          DATABASE_URL: postgresql://u:p@localhost:5432/db
+
+      - name: Validar docker-compose.yml
+        run: docker compose config --quiet
+        env:
+          POSTGRES_PASSWORD: ci
+          JWT_SECRET: ci
+          JWT_REFRESH_SECRET: ci
+          SEED_ADMIN_EMAIL: ci@example.com
+          SEED_ADMIN_PASSWORD: ci
+
+      - name: Nenhum .env commitado
+        run: |
+          if git ls-files --error-unmatch .env >/dev/null 2>&1; then
+            echo "ERRO: .env está versionado. Segredo vive em GitHub Secrets."
+            exit 1
+          fi
+          echo "OK: nenhum .env versionado."
+
+  backend:
+    name: Backend
+    runs-on: ubuntu-latest
+    # Ativado pelo Épico 1, quando backend/package.json existir.
+    needs: foundation
+    if: needs.foundation.outputs.has_backend == 'true'
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: oficina
+          POSTGRES_PASSWORD: oficina
+          POSTGRES_DB: oficina_erp_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 5s
+          --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgresql://oficina:oficina@localhost:5432/oficina_erp_test?schema=public
+      JWT_SECRET: ci-test-secret
+      JWT_REFRESH_SECRET: ci-test-refresh-secret
+      SEED_ADMIN_EMAIL: ci@example.com
+      SEED_ADMIN_PASSWORD: ${{ secrets.CI_SEED_ADMIN_PASSWORD }}
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - run: npm ci
+      - run: npx prisma generate
+      - run: npx prisma migrate deploy
+      - run: npm run lint
+      - run: npx tsc --noEmit
+      - run: npm test
+      - run: npm run build
+
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-latest
+    # Ativado pelo Épico 1, quando frontend/package.json existir.
+    needs: foundation
+    if: needs.foundation.outputs.has_frontend == 'true'
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npx tsc --noEmit
+
+      # Regra do design system: cor vem de token, nunca literal.
+      - name: Sem cor literal fora dos tokens
+        run: |
+          hits=$(grep -rnE "text-gray-[0-9]|bg-(black|white)|#[0-9a-fA-F]{6}" src/app src/components 2>/dev/null \
+                 | grep -v globals.css || true)
+          if [ -n "$hits" ]; then
+            echo "ERRO: cor literal fora de globals.css:"
+            echo "$hits"
+            exit 1
+          fi
+          echo "OK: nenhuma cor literal."
+
+      - run: npm test
+      - run: npm run build
