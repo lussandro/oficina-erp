@@ -12,6 +12,7 @@ import { ServicesModule } from "./modules/services/services.module";
 import { ProductsModule } from "./modules/products/products.module";
 import { ProductCategoriesModule } from "./modules/product-categories/product-categories.module";
 import { SuppliersModule } from "./modules/suppliers/suppliers.module";
+import { VehiclesModule } from "./modules/vehicles/vehicles.module";
 import { AuditModule } from "./modules/audit/audit.module";
 import { HealthController } from "./health/health.controller";
 
@@ -26,6 +27,7 @@ import { HealthController } from "./health/health.controller";
     ProductsModule,
     ProductCategoriesModule,
     SuppliersModule,
+    VehiclesModule,
     AuditModule,
   ],
   controllers: [HealthController],
