@@ -12,7 +12,9 @@ import { UpdateUserDto } from "./dto/update-user.dto";
 import { ListUsersQuery } from "./dto/list-users.query";
 import { UpdateProfileDto } from "../auth/dto/update-profile.dto";
 
-const PUBLIC_SELECT = {
+// Exportado para o AuditInterceptor (BAC-73) — o `before` do audit_logs não pode
+// carregar passwordHash, e a lista de campos públicos tem uma fonte só: esta.
+export const PUBLIC_SELECT = {
   id: true,
   name: true,
   email: true,

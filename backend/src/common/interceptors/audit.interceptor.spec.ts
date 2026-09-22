@@ -53,7 +53,11 @@ describe("AuditInterceptor", () => {
     await new Promise<void>((resolve) => result$.subscribe(() => resolve()));
     await Promise.resolve();
 
-    expect(prisma.user.findUnique).toHaveBeenCalledWith({ where: { id: "u1" } });
+    // BAC-73: a busca do valor anterior usa projeção — sem ela, passwordHash
+    // cairia em audit_logs.before.
+    expect(prisma.user.findUnique).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: "u1" } }),
+    );
     expect(auditService.record).toHaveBeenCalledWith({
       action: AuditAction.UPDATE,
       entity: "user",
