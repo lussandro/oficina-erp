@@ -46,3 +46,50 @@ export interface LoginResponse {
   refreshToken: string;
   user: AuthenticatedUser;
 }
+
+/** Envelope de listagem do backend: `{ data, meta }` (ARCHITECTURE.md §6). */
+export interface ListResponse<T> {
+  data: T[];
+  meta: { page: number; pageSize: number; total: number; totalPages: number };
+}
+
+/** A mesma tradução de erro do `postJson`, para os verbos de leitura. */
+async function toApiError(response: Response): Promise<never> {
+  const text = await response.text();
+  throw new ApiError(response.status, text || `HTTP ${response.status}`);
+}
+
+/** GET autenticado. Sem token explícito o backend responde 401 — e a tela
+ *  mostra isso como erro, não como lista vazia. */
+export async function getJson<T>(path: string, token: string | null): Promise<T> {
+  const response = await fetch(`${API_URL}${path}`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    cache: 'no-store',
+  });
+
+  if (!response.ok) {
+    await toApiError(response);
+  }
+  return (await response.json()) as T;
+}
+
+/** POST autenticado, usado pelos movimentos de estoque. */
+export async function postJsonWithToken<T>(
+  path: string,
+  body: unknown,
+  token: string | null,
+): Promise<T> {
+  const response = await fetch(`${API_URL}${path}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (!response.ok) {
+    await toApiError(response);
+  }
+  return (await response.json()) as T;
+}

@@ -25,7 +25,8 @@ export class ProductsService {
           costPrice: dto.costPrice ?? "0",
           salePrice: dto.salePrice,
           unit: dto.unit ?? "UN",
-          stockQty: dto.stockQty ?? 0,
+          // stockQty não é aceito aqui: saldo só nasce de movimento de estoque
+          // (Épico 8). Produto novo começa em 0; a carga inicial é ENTRADA.
           minStockQty: dto.minStockQty ?? 0,
           location: dto.location,
           categoryId: dto.categoryId,
@@ -104,7 +105,6 @@ export class ProductsService {
           ...(dto.costPrice !== undefined ? { costPrice: dto.costPrice } : {}),
           ...(dto.salePrice !== undefined ? { salePrice: dto.salePrice } : {}),
           ...(dto.unit !== undefined ? { unit: dto.unit } : {}),
-          ...(dto.stockQty !== undefined ? { stockQty: dto.stockQty } : {}),
           ...(dto.minStockQty !== undefined
             ? { minStockQty: dto.minStockQty }
             : {}),

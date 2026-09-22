@@ -31,6 +31,13 @@ export const PERMISSIONS = {
   SUPPLIER_CREATE: "supplier:create",
   SUPPLIER_UPDATE: "supplier:update",
   SUPPLIER_MANAGE: "supplier:manage",
+  // Estoque (/stock/*) — Épico 8. `write` movimenta (entrada/saída/devolução);
+  // `adjust` corrige saldo. Separadas porque ajuste é o único caminho que pode
+  // inventar saldo sem origem — ARCHITECTURE.md §5 usa `stock:adjust` como
+  // exemplo de permissão que o modelo antigo não conseguia expressar.
+  STOCK_READ: "stock:read",
+  STOCK_WRITE: "stock:write",
+  STOCK_ADJUST: "stock:adjust",
   // Auditoria (/audit-logs) — Épico 16.
   AUDIT_READ: "audit:read",
   EMPLOYEE_READ: "employee:read",
@@ -66,6 +73,17 @@ const PRODUCT_FULL = [
   PERMISSIONS.PRODUCT_CATEGORY_MANAGE,
 ];
 
+// Estoque: toda a equipe consulta (orçamento, OS, balcão). Movimentar é de quem
+// opera o balcão (ATENDENTE entra/sai peça); ajustar saldo é de ADMIN/GERENTE —
+// é o único movimento sem origem externa que o justifique.
+const STOCK_FULL = [
+  PERMISSIONS.STOCK_READ,
+  PERMISSIONS.STOCK_WRITE,
+  PERMISSIONS.STOCK_ADJUST,
+];
+
+const STOCK_WRITE_ONLY = [PERMISSIONS.STOCK_READ, PERMISSIONS.STOCK_WRITE];
+
 const SUPPLIER_FULL = [
   PERMISSIONS.SUPPLIER_READ,
   PERMISSIONS.SUPPLIER_CREATE,
@@ -87,6 +105,7 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     ...SERVICE_FULL,
     ...PRODUCT_FULL,
     ...SUPPLIER_FULL,
+    ...STOCK_FULL,
     // docs/API_CONTRACT.md §Auditoria: audit:read é exclusivo do ADMIN.
     PERMISSIONS.AUDIT_READ,
     PERMISSIONS.EMPLOYEE_READ,
@@ -101,6 +120,7 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     ...SERVICE_FULL,
     ...PRODUCT_FULL,
     ...SUPPLIER_FULL,
+    ...STOCK_FULL,
     PERMISSIONS.EMPLOYEE_READ,
     PERMISSIONS.EMPLOYEE_CREATE,
     PERMISSIONS.EMPLOYEE_UPDATE,
@@ -115,12 +135,17 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     PERMISSIONS.PRODUCT_CATEGORY_READ,
     PERMISSIONS.SUPPLIER_READ,
     PERMISSIONS.EMPLOYEE_READ,
+    // Recebe peça, devolve peça ao balcão: movimenta, mas não ajusta saldo.
+    ...STOCK_WRITE_ONLY,
   ],
   [Role.MECANICO]: [
     PERMISSIONS.SERVICE_READ,
     PERMISSIONS.PRODUCT_READ,
     PERMISSIONS.PRODUCT_CATEGORY_READ,
     PERMISSIONS.SUPPLIER_READ,
+    // ARCHITECTURE.md §5: mecânico registra consumo de peça na OS.
+    PERMISSIONS.STOCK_READ,
+    PERMISSIONS.STOCK_WRITE,
   ],
 };
 
