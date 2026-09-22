@@ -102,6 +102,10 @@ jobs:
       - run: npm run lint
       - run: npx tsc --noEmit
       - run: npm test
+      # Integração (Jest+Supertest) contra o Postgres do job: docs/TESTING.md §2
+      # exige esta camada, e §4 manda rodar contra banco real, não mock. Sem este
+      # passo a suíte de test/*.e2e-spec.ts existia e nada a executava.
+      - run: npm run test:e2e
       - run: npm run build
 
   frontend:
