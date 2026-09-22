@@ -186,6 +186,10 @@ também `categoryId`, `supplierId` e `active`. Campos do produto: `sku`, `barcod
 definitiva; produtos ligados ficam sem categoria). Toda a equipe lê o catálogo;
 cadastrar/editar/excluir exige ADMIN ou GERENTE (custo é dado sensível).
 
+**`stockQty` é somente leitura em `/products`** (Épico 8): não é aceito no `POST`
+(`400` — `forbidNonWhitelisted`) nem no `PATCH`. Saldo só muda por movimento de
+estoque, e produto novo nasce com 0.
+
 #### Fornecedores — Épico 7
 
 `POST /suppliers` — `{ document, name, tradeName?, email?, phone?, website?,
@@ -279,6 +283,35 @@ string não vazia é truthy); corrigido com `@Transform` explícito em `ListUser
 | `GET /stock/low` | `stock:read` — abaixo do mínimo |
 
 Movimento é append-only: não há `PATCH` nem `DELETE`. Correção é `AJUSTE`.
+
+`POST /stock/movements` — `{ productId, type, quantity, unitCost?, reason?,
+documentRef?, supplierId?, serviceOrderId? }`. `type ∈ { ENTRADA, SAIDA, CONSUMO,
+DEVOLUCAO }` — `AJUSTE` **não** entra aqui, tem rota própria. `quantity` é sempre
+**positivo**; o tipo define o sinal. `ENTRADA`/`DEVOLUCAO` somam, `SAIDA`/`CONSUMO`
+subtraem. `DEVOLUCAO` exige `reason` (movimento sem origem não é auditável → `422`).
+Saída maior que o saldo → `422` com `details.stockQty`. Resposta (e cada item de
+`GET /stock/movements`) traz `resultingQty` — o saldo **depois** do movimento — e
+`createdById`, o usuário que registrou. `GET` filtra por `productId`, `type`,
+`serviceOrderId`, `createdById`, `from`, `to`.
+
+`POST /stock/adjustments` — `{ productId, targetQty, reason }`. Informa o **saldo
+contado**, não a diferença: quem conta a prateleira sabe que tem 7, não quanto o
+sistema achava que tinha. O servidor grava um `AJUSTE` com `quantity = targetQty −
+stockQty` e `resultingQty = targetQty`. `reason` obrigatório (mínimo 3 caracteres).
+Ajustar para o saldo que já está lá → `422` (delta zero não gera movimento).
+
+`GET /stock/low` — produtos ativos com `stockQty <= minStockQty` e `minStockQty > 0`
+(mínimo não configurado fica de fora: senão todo item zerado vira alarme). Ordenado
+do mais crítico para o menos. Filtra por `supplierId`.
+
+**Invariantes.** `products.stockQty` é derivado da série de movimentos, e as duas
+escritas acontecem na mesma transação com `SELECT … FOR UPDATE` na linha do produto
+— dois movimentos concorrentes da mesma peça não se sobrescrevem. Toda escrita em
+`stockQty` passa por `StockService`: não existe caminho que altere saldo sem
+registrar o movimento que o justifica.
+
+Permissões: `stock:read` toda a equipe; `stock:write` ADMIN/GERENTE/ATENDENTE/MECANICO
+(mecânico registra consumo em OS); `stock:adjust` só ADMIN/GERENTE.
 
 ### Ordens de serviço — Épico 10
 

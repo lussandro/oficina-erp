@@ -51,11 +51,6 @@ export class CreateProductDto {
 
   @ApiPropertyOptional({ default: 0 })
   @IsOptional()
-  @IsInt()
-  @Min(0)
-  stockQty?: number;
-
-  @ApiPropertyOptional({ default: 0 })
   @IsOptional()
   @IsInt()
   @Min(0)

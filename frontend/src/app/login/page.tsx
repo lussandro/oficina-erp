@@ -1,6 +1,7 @@
 'use client';
 
 import { Wrench } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useState, type FormEvent } from 'react';
 
 import { Button } from '@/components/Button';
@@ -9,13 +10,16 @@ import { ErrorState } from '@/components/ErrorState';
 import { Field } from '@/components/Field';
 import { Input } from '@/components/Input';
 import { LoginResponse, postJson } from '@/lib/api';
+import { setToken } from '@/lib/session';
 
 /**
  * Tela pública de login. O backend do Épico 2 já entrega `POST /auth/login`;
- * a sessão (guardar o token e proteger as rotas internas) entra no épico de
- * autenticação do frontend.
+ * a sessão completa (refresh, expiração, guarda de rota) entra no épico de
+ * autenticação do frontend — aqui o token é guardado para as telas internas
+ * conseguirem chamar a API.
  */
 export default function LoginPage() {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -27,10 +31,12 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const { user } = await postJson<LoginResponse>('/auth/login', { email, password });
-      // Sem roteador de sessão ainda: confirma que o backend autenticou.
-      // Trocar pelo redirecionamento quando a sessão existir.
-      console.info('Autenticado', user.email);
+      const { accessToken } = await postJson<LoginResponse>('/auth/login', {
+        email,
+        password,
+      });
+      setToken(accessToken);
+      router.push('/estoque');
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : String(cause));
     } finally {
