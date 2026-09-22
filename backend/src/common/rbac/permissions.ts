@@ -31,6 +31,12 @@ export const PERMISSIONS = {
   SUPPLIER_CREATE: "supplier:create",
   SUPPLIER_UPDATE: "supplier:update",
   SUPPLIER_MANAGE: "supplier:manage",
+  // Veículos (/vehicles) — Épico 4. Escopo do cliente, não catálogo: entra na
+  // lista junto de CUSTOMER_FULL.
+  VEHICLE_READ: "vehicle:read",
+  VEHICLE_CREATE: "vehicle:create",
+  VEHICLE_UPDATE: "vehicle:update",
+  VEHICLE_MANAGE: "vehicle:manage",
   // Auditoria (/audit-logs) — Épico 16.
   AUDIT_READ: "audit:read",
   EMPLOYEE_READ: "employee:read",
@@ -66,6 +72,13 @@ const PRODUCT_FULL = [
   PERMISSIONS.PRODUCT_CATEGORY_MANAGE,
 ];
 
+const VEHICLE_FULL = [
+  PERMISSIONS.VEHICLE_READ,
+  PERMISSIONS.VEHICLE_CREATE,
+  PERMISSIONS.VEHICLE_UPDATE,
+  PERMISSIONS.VEHICLE_MANAGE,
+];
+
 const SUPPLIER_FULL = [
   PERMISSIONS.SUPPLIER_READ,
   PERMISSIONS.SUPPLIER_CREATE,
@@ -84,6 +97,7 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     PERMISSIONS.USER_UPDATE,
     PERMISSIONS.USER_MANAGE,
     ...CUSTOMER_FULL,
+    ...VEHICLE_FULL,
     ...SERVICE_FULL,
     ...PRODUCT_FULL,
     ...SUPPLIER_FULL,
@@ -98,6 +112,7 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
   [Role.GERENTE]: [
     PERMISSIONS.USER_READ,
     ...CUSTOMER_FULL,
+    ...VEHICLE_FULL,
     ...SERVICE_FULL,
     ...PRODUCT_FULL,
     ...SUPPLIER_FULL,
@@ -117,6 +132,8 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     PERMISSIONS.EMPLOYEE_READ,
   ],
   [Role.MECANICO]: [
+    // Lê o veículo do qual está cuidando (ficha da OS); não edita cadastro.
+    PERMISSIONS.VEHICLE_READ,
     PERMISSIONS.SERVICE_READ,
     PERMISSIONS.PRODUCT_READ,
     PERMISSIONS.PRODUCT_CATEGORY_READ,

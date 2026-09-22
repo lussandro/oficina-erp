@@ -222,6 +222,58 @@ Execução real contra Postgres, CNPJ duplicado (`422`) e CNPJ com dígito errad
 { "statusCode": 400, "error": "Bad Request", "message": "CNPJ inválido" }
 ```
 
+#### Veículos — Épico 4
+
+`POST /vehicles` — `{ plate, brand, model, modelYear?, makeYear?, color?, fuelType?,
+vin?, currentKm?, notes?, customerId }`. `plate` aceita padrão antigo (`ABC1234`) e
+Mercosul (`ABC1D23`), com ou sem separador, e é normalizada para maiúsculas sem
+hífen antes de gravar — é ela que sustenta o `@unique`, então `abc-1234` e `ABC1234`
+são a mesma placa. `vin` (chassi) tem 17 caracteres, caixa alta, sem `I`/`O`/`Q`.
+Ano aceita `hoje-119` até `hoje+1` — mesmo intervalo que a referência validava só no
+formulário (REFERENCE_ANALYSIS.md), aqui valendo para qualquer cliente HTTP.
+`customerId` é obrigatório e é validado contra o cadastro: cliente inexistente
+(ou apagado) → `422`, não veículo órfão.
+
+`GET /vehicles?page=&pageSize=&q=&customerId=&plate=` — `q` busca em `plate`, `brand`
+e `model`; `customerId` filtra os veículos de um cliente e `plate` busca a placa
+exata (normalizada). O retorno traz o cliente embutido (`id`, `name`, `phone`) —
+a tela de veículo precisa do dono e o `GET /vehicles` é quem a alimenta.
+
+`GET /vehicles/:id/history` — OS e orçamentos em que o veículo entrou, mais recentes
+primeiro:
+
+```json
+{ "vehicleId": "620a5ab2-...", "serviceOrders": [], "quotes": [] }
+```
+
+`DELETE /vehicles/:id` → `204`, soft delete: só `deletedAt`, sem `active` (veículo
+não tem flag de ativação no schema). A linha continua no banco — histórico de OS
+aponta para ela.
+
+**RBAC.** Escopo do cliente, não catálogo: `vehicle:read|create|update|manage` entra
+junto de `CUSTOMER_FULL` — ADMIN, GERENTE e ATENDENTE completos; MECANICO só lê
+(consulta o veículo do qual está cuidando, não edita cadastro).
+
+Execução real contra Postgres. Sem token → `401`; com token → `200`:
+
+```
+$ curl -s -o /dev/null -w '%{http_code}' "http://localhost:3001/api/v1/vehicles"
+401
+$ curl -s -o /dev/null -w '%{http_code}' -H "Authorization: Bearer $TOKEN" "http://localhost:3001/api/v1/vehicles"
+200
+```
+
+Placa duplicada (`422`), placa fora do padrão (`400`), cliente inexistente (`422`):
+
+```json
+{ "statusCode": 422, "error": "Unprocessable Entity", "message": "Placa já cadastrada para outro veículo", "details": { "field": "plate" } }
+{ "statusCode": 400, "error": "Bad Request", "message": "Placa inválida" }
+{ "statusCode": 422, "error": "Unprocessable Entity", "message": "Cliente não encontrado", "details": { "field": "customerId" } }
+```
+
+`GET`/`PATCH`/`DELETE` com id inexistente → `404 Veículo não encontrado`. O create,
+o update e o delete gravam audit log (`entity: "vehicle"`).
+
 #### Usuários — Épico 2
 
 `POST /users` — `{ name, email, password, role, phone? }`. `role ∈ { ADMIN, GERENTE,
