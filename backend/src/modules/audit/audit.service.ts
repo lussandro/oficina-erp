@@ -24,8 +24,8 @@ export class AuditService {
         action: entry.action,
         entity: entry.entity,
         entityId: entry.entityId,
-        before: toJson(entry.before),
-        after: toJson(entry.after),
+        before: toJson(sanitize(entry.before)),
+        after: toJson(sanitize(entry.after)),
         userId: entry.userId,
       },
     });
@@ -72,4 +72,39 @@ export class AuditService {
 
 function toJson(value: unknown): Prisma.InputJsonValue | undefined {
   return value === undefined ? undefined : (JSON.parse(JSON.stringify(value)) as Prisma.InputJsonValue);
+}
+
+// Última barreira antes do JSON (BAC-73): audit_logs é somente-leitura e nunca
+// apagada (docs/SECURITY.md §4), então um campo sensível que chegue aqui vaza
+// para sempre — não há rota de exclusão depois. A projeção do interceptor
+// resolve `user`, mas `after` vem do retorno do handler e não passa por ela.
+const SENSITIVE_KEYS = new Set([
+  "password",
+  "passwordHash",
+  "password_hash",
+  "token",
+  "accessToken",
+  "refreshToken",
+]);
+
+function sanitize(value: unknown): unknown {
+  if (value === null || typeof value !== "object") {
+    return value;
+  }
+  if (Array.isArray(value)) {
+    return value.map(sanitize);
+  }
+  // Date, Decimal e afins são folhas — copiar Object.entries deles esvaziaria o
+  // valor (Date vira {}). Só objeto simples é percorrido.
+  if (Object.getPrototypeOf(value) !== Object.prototype) {
+    return value;
+  }
+  const out: Record<string, unknown> = {};
+  for (const [key, item] of Object.entries(value as Record<string, unknown>)) {
+    if (SENSITIVE_KEYS.has(key)) {
+      continue;
+    }
+    out[key] = sanitize(item);
+  }
+  return out;
 }

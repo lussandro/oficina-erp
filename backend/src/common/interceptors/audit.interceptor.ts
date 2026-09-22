@@ -12,8 +12,19 @@ import { PrismaService } from "../prisma/prisma.service";
 import { AuditService } from "../../modules/audit/audit.service";
 import { AuthenticatedUser } from "../../modules/auth/strategies/jwt.strategy";
 import { AUDIT_KEY, AuditMeta } from "../decorators/audit.decorator";
+import { PUBLIC_SELECT } from "../../modules/users/users.service";
 
 type PrismaDelegate = { findUnique: (args: unknown) => Promise<unknown> };
+
+// Projeção por entidade. `user` não pode devolver a linha crua: passwordHash
+// iria direto para audit_logs.before, que é somente-leitura e nunca apagada
+// (docs/SECURITY.md §4 — BAC-73). Entidade sem projeção aqui não é auditada
+// com `before`; some a projeção, some o dado — nunca o contrário.
+const SAFE_SELECT: Record<string, Record<string, boolean>> = {
+  user: PUBLIC_SELECT,
+};
+
+export const auditSafeSelectFor = (entity: string) => SAFE_SELECT[entity];
 
 // Genérico por design: cada módulo soma auditoria só com @Audit(entity, action)
 // no controller, sem tocar no service (ARCHITECTURE.md §3 — controller não calcula,
@@ -81,9 +92,10 @@ export class AuditInterceptor implements NestInterceptor {
     const delegate = (this.prisma as unknown as Record<string, PrismaDelegate>)[
       entity
     ];
-    if (!delegate?.findUnique) {
+    const select = auditSafeSelectFor(entity);
+    if (!delegate?.findUnique || !select) {
       return undefined;
     }
-    return delegate.findUnique({ where: { id } });
+    return delegate.findUnique({ where: { id }, select });
   }
 }
